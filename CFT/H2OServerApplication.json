@@ -1,0 +1,296 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template Launches an EC2 instance that deploys H2O Web UI.",
+    "Parameters": {
+        "VPC": {
+            "Description": "VPC",
+            "Type": "String",
+            "Default": "vpc-986d12fc"
+        },
+        "KeyPairName": {
+            "Description": "Public/private key pairs allow you to securely connect to your instance after it launches",
+            "Type": "String",
+            "Default": ""
+        },
+        "AmiId": {
+            "Description": "Amazon AMI",
+            "Type": "String",
+            "Default": "ami-1ecae776"
+        },
+        "WEBAZ1subnet": {
+            "Description": "Amazon Subnet",
+            "Type": "String",
+            "Default": "subnet-7a634422"
+        },
+        "ExternalELBAZ1subnet": {
+            "Description": "Amazon external ELB Subnet",
+            "Type": "String",
+            "Default": "subnet-4e634416"
+        },
+        "ExternalELBAZ2subnet": {
+            "Description": "Amazon external ELB Subnet",
+            "Type": "String",
+            "Default": "subnet-da9f32ac"
+        },
+        "WEBsecuritygroup": {
+            "Description": "Amazon SecurityGroup",
+            "Type": "String",
+            "Default": "sg-c0b1e4bb"
+        },
+        "ExternalELBsecuritygroup": {
+            "Description": "Amazon SecurityGroup",
+            "Type": "String",
+            "Default": "sg-cdb1e4b6"
+        },
+        "IamInstanceProfile": {
+            "Description": "Amazon IamInstanceProfile",
+            "Type": "String",
+            "Default": "test-IA-master-IamInstanceProfile-5FY9MKJP81G"
+        },
+        "InstanceType": {
+            "Description": "Amazon EC2 instance type for the 1st HWNode",
+            "Type": "String",
+            "Default": "m4.xlarge"
+        },
+        "BucketName": {
+            "Description": "Amazon S3 bucket name.",
+            "Type": "String",
+            "Default": "hw-data"
+        },
+        "APPAZ1subnet": {
+            "Description": "Amazon Subnet",
+            "Type": "String",
+            "Default": ""
+        },
+        "AppSecuritygroup": {
+            "Description": "Amazon SecurityGroup",
+            "Type": "String",
+            "Default": ""
+        },
+        "InternalELBsecuritygroup": {
+            "Description": "Amazon SecurityGroup",
+            "Type": "String",
+            "Default": ""
+        },
+        "InternalELBAZ1subnet": {
+            "Description": "Amazon external ELB Subnet",
+            "Type": "String",
+            "Default": ""
+        },
+        "DMZAZ1subnet": {
+            "Description": "Amazon Subnet",
+            "Type": "String",
+            "Default": ""
+        },
+        "DMZsecuritygroup": {
+            "Description": "Amazon SecurityGroup",
+            "Type": "String",
+            "Default": ""
+        },
+        "InstanceCountMin": {
+            "Description": "Min Number of server",
+            "Type": "String",
+            "Default": "1"
+        },
+        "InstanceCountMax": {
+            "Description": "Max Number of server",
+            "Type": "String",
+            "Default": "5"
+        }
+    },
+    "Resources": {
+        "H2OServerApplication": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "LaunchConfigurationName": {
+                    "Ref": "H2OServerLaunchConfig"
+                },
+                "MinSize": {
+                    "Ref": "InstanceCountMin"
+                },
+                "MaxSize": {
+                    "Ref": "InstanceCountMax"
+                },
+                "TargetGroupARNs": [
+                    {
+                        "Ref": "ALBTargetGroup"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "H20-FromCft",
+                        "PropagateAtLaunch": "true"
+				    }
+                ],
+                "VPCZoneIdentifier": [
+                    {
+                        "Ref": "WEBAZ1subnet"
+				    }
+                ]
+            }
+        },
+        "H2OServerLaunchConfig": {
+            "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPairName"
+                },
+                "ImageId": {
+                    "Ref": "AmiId"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "WEBsecuritygroup"
+				    }
+                ],
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "IamInstanceProfile": {
+                    "Ref": "H2OInstanceProfile"
+                },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash -xe\n",
+                                "/bin/mkdir -p /opt/heavywater \n",
+                                "touch /opt/heavywater/setup.log \n",
+                                "echo 'mkdir done' >>/opt/heavywater/setup.log \n",
+                                "echo 'copy credentials done' >>/opt/heavywater/setup.log \n",
+                                "touch /opt/heavywater/h2o.err \n",
+                                "echo 'touch h2o.err done' >>/opt/heavywater/setup.log \n",
+                                "sudo pip install h2o \n",
+                                "echo 'install  h2o done' >>/opt/heavywater/setup.log \n",
+                                "touch /opt/heavywater/credentials \n",
+                                "echo 'username: password' >>/opt/heavywater/credentials \n",
+                                "sudo nohup java -jar /usr/local/lib/python2.7/site-packages/h2o/backend/bin/h2o.jar -hash_login -login_conf /opt/heavywater/credentials -port 54321 1> /dev/null 2> /opt/heavywater/h2o.err & \n",
+                                "echo 'start h2o done' >>/opt/heavywater/setup.log \n"
+                            ]
+                        ]
+                    }
+                }
+            }
+        },
+        "ALBListener": {
+            "Type": "AWS::ElasticLoadBalancingV2::Listener",
+            "Properties": {
+                "DefaultActions": [
+                    {
+                        "Type": "forward",
+                        "TargetGroupArn": {
+                            "Ref": "ALBTargetGroup"
+                        }
+                    }
+                ],
+                "LoadBalancerArn": {
+                    "Ref": "ApplicationLoadBalancer"
+                },
+                "Port": "80",
+                "Protocol": "HTTP"
+            }
+        },
+        "ApplicationLoadBalancer": {
+            "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+            "Properties": {
+                "Scheme": "internet-facing",
+                "Subnets": [
+                    {
+                        "Ref": "ExternalELBAZ1subnet"
+                    },
+                    {
+                        "Ref": "ExternalELBAZ2subnet"
+                    }
+                ],
+                "SecurityGroups": [
+                    {
+                        "Ref": "ExternalELBsecuritygroup"
+                    }
+                ]
+            }
+        },
+        "ALBTargetGroup": {
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+                "HealthCheckIntervalSeconds": 60,
+                "UnhealthyThresholdCount": 10,
+                "HealthCheckPath": "/",
+                "Name": "ALBTargetGroup",
+                "Port": 54321,
+                "Protocol": "HTTP",
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+
+            }
+        },
+        "H2ORole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": ["ec2.amazonaws.com"]
+                            },
+                            "Action": ["sts:AssumeRole"]
+                        }
+                    ]
+                },
+                "Path": "/"
+            }
+        },
+        "H2ORolePolicies": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "H2O",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                            "s3:PutObject",
+                            "s3:GetObject",
+                            "s3:GetObjectVersion",
+                            "s3:DeleteObject",
+                            "s3:DeleteObjectVersion"
+                         ],
+                            "Resource": "arn:aws:s3:::hw-data/Zip/data/*"
+                      }
+                   ]
+                },
+                "Roles": [
+                    {
+                        "Ref": "H2ORole"
+                    }
+                ]
+            }
+        },
+        "H2OInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "H2ORole"
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs": {
+        "H2OUrl": {
+            "Value": {
+                "Fn::Join": ["", ["http://", {
+                    "Fn::GetAtt": ["ApplicationLoadBalancer", "DNSName"]
+						}]]
+            },
+            "Description": "H2O URL"
+        }
+    }
+}
