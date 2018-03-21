@@ -36,7 +36,7 @@ See below how to execute the script using aws-cli
 >python Scripts/launchH2O.py template_url skill_cft_name keypair_name
 1. template_url : S3 url where H2OServerApplication template is stored
 >> Example: https://s3.amazonaws.com/bucketname/foldername/H2OServerApplication.json
-2. cft_name :  Name of the cft created in the previous step.
+2. skill_cft_name :  Name of the cft created in the previous step.
 3. keypair_name : Name of .pem file.
 
 
