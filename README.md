@@ -17,26 +17,25 @@
 
 ### Scripts
 
->Scripts/launchSkill.py 
-
+##### Scripts/launchSkill.py 
 Is used to launch the SKillCFT template.
 See below how to execute the script using aws-cli
 
- >>python Scripts/launchSkill.py template_url cft_name
+ >python Scripts/launchSkill.py template_url cft_name
 
 1. template_url : S3 url where SkillCFT.json template is stored
->>> Example: https://s3.amazonaws.com/bucketname/foldername/SkillCFT.json
+>> Example: https://s3.amazonaws.com/bucketname/foldername/SkillCFT.json
 2. cft_name :  Name of the stack you want to create
 
 
->Scripts/launchH2O.py 
+##### Scripts/launchH2O.py 
 
-is used to launch the H2OServerApplication template.
+Is used to launch the H2OServerApplication template.
 See below how to execute the script using aws-cli
 
->>python Scripts/launchH2O.py template_url skill_cft_name keypair_name
+>python Scripts/launchH2O.py template_url skill_cft_name keypair_name
 1. template_url : S3 url where H2OServerApplication template is stored
->>> Example: https://s3.amazonaws.com/bucketname/foldername/H2OServerApplication.json
+>> Example: https://s3.amazonaws.com/bucketname/foldername/H2OServerApplication.json
 2. cft_name :  Name of the cft created in the previous step.
 3. keypair_name : Name of .pem file.
 
