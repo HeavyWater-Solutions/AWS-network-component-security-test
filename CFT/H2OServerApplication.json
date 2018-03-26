@@ -5,7 +5,7 @@
         "VPC": {
             "Description": "VPC",
             "Type": "String",
-            "Default": "vpc-986d12fc"
+            "Default": ""
         },
         "KeyPairName": {
             "Description": "Public/private key pairs allow you to securely connect to your instance after it launches",
@@ -15,37 +15,37 @@
         "AmiId": {
             "Description": "Amazon AMI",
             "Type": "String",
-            "Default": "ami-1ecae776"
+            "Default": ""
         },
         "WEBAZ1subnet": {
             "Description": "Amazon Subnet",
             "Type": "String",
-            "Default": "subnet-7a634422"
+            "Default": ""
         },
         "ExternalELBAZ1subnet": {
             "Description": "Amazon external ELB Subnet",
             "Type": "String",
-            "Default": "subnet-4e634416"
+            "Default": ""
         },
         "ExternalELBAZ2subnet": {
             "Description": "Amazon external ELB Subnet",
             "Type": "String",
-            "Default": "subnet-da9f32ac"
+            "Default": ""
         },
         "WEBsecuritygroup": {
             "Description": "Amazon SecurityGroup",
             "Type": "String",
-            "Default": "sg-c0b1e4bb"
+            "Default": ""
         },
         "ExternalELBsecuritygroup": {
             "Description": "Amazon SecurityGroup",
             "Type": "String",
-            "Default": "sg-cdb1e4b6"
+            "Default": ""
         },
         "IamInstanceProfile": {
             "Description": "Amazon IamInstanceProfile",
             "Type": "String",
-            "Default": "test-IA-master-IamInstanceProfile-5FY9MKJP81G"
+            "Default": ""
         },
         "InstanceType": {
             "Description": "Amazon EC2 instance type for the 1st HWNode",
@@ -119,7 +119,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "H20-FromCft",
+                        "Value": "H2O",
                         "PropagateAtLaunch": "true"
 				    }
                 ],
