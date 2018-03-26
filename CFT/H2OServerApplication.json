@@ -119,7 +119,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "H2O",
+                        "Value": "H20-FromCft",
                         "PropagateAtLaunch": "true"
 				    }
                 ],
