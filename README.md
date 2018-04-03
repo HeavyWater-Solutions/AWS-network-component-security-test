@@ -19,7 +19,7 @@ Attached are the two cloud formations , one creates a VPC another deploys an EC2
 ### Scripts
 
 ##### Scripts/launchSkill.py 
-Is used to launch the SKillCFT template.
+This script is used to launch the SKillCFT template.The script reads the CFT from an S3 path so copy CFT/SkillCFT.json to an S3 path (bucketname/foldername)
 See below how to execute the script using aws-cli
 
  >python Scripts/launchSkill.py template_url cft_name
@@ -31,11 +31,12 @@ See below how to execute the script using aws-cli
 
 ##### Scripts/launchH2O.py 
 
-Is used to launch the H2OServerApplication template.
-See below how to execute the script using aws-cli
+This script is used to launch the H2OServerApplication template. The script reads the CFT from an S3 path so copy CFT/H2OServerApplication.json to an S3 path (bucketname/foldername)
+
+See below an example of how to execute the script using aws-cli. 
 
 >python Scripts/launchH2O.py template_url skill_cft_name keypair_name
-1. template_url : S3 url where H2OServerApplication template is stored
+1. template_url : S3 url where H2OServerApplication template is stored.
 >> Example: https://s3.amazonaws.com/bucketname/foldername/H2OServerApplication.json
 2. skill_cft_name :  Name of the cft created in the previous step.
 3. keypair_name : Name of .pem file.
